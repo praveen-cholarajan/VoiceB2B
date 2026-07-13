@@ -1,0 +1,405 @@
+{
+  "campaign_name": "Vi Business Corporate Postpaid",
+  "version": "2.0",
+  "agent": {
+    "name": "Vi Business Executive",
+    "company": "Vi Business"
+  },
+  "start_state": "GREETING",
+  "states": {
+
+    "GREETING": {
+  "title": "Greeting",
+  "goal": "Start the conversation politely.",
+  "script": [
+    "Hello! Good morning."
+  ],
+  "collect": [],
+  "transitions": {
+    "completed": "ASK_CUSTOMER_NAME"
+  }
+},
+"ASK_CUSTOMER_NAME": {
+  "title": "Ask Customer Name",
+  "goal": "Find out the customer's name before continuing the conversation.",
+  "script": [
+    "May I know your name, please?"
+  ],
+  "collect": [
+    "customer_name"
+  ],
+  "transitions": {
+    "completed": "INTRODUCE_SELF"
+  }
+},
+"INTRODUCE_SELF": {
+  "title": "Introduction",
+  "goal": "Introduce yourself and explain why you are calling.",
+  "script": [
+    "Nice to meet you, {{customer_name}}.",
+    "I'm calling from Vi Business.",
+    "I'd like to understand your business mobility requirements so I can recommend the most suitable plan."
+  ],
+  "collect": [],
+  "transitions": {
+    "completed": "ASK_TALK_TIME"
+  }
+},
+
+    "ASK_TALK_TIME": {
+      "title": "Permission to Talk",
+      "goal": "Ask if the customer is available to talk right now.",
+      "script": [
+        "Is this a good time to speak?"
+      ],
+      "collect": [
+        "talk_permission"
+      ],
+      "transitions": {
+        "yes": "ASK_CONNECTION_COUNT",
+        "no": "CALLBACK"
+      }
+    },
+
+    "CALLBACK": {
+      "title": "Callback Schedule",
+      "goal": "The customer is not available. Politely ask for a convenient date and time to call back. Confirm the callback time before ending.",
+      "script": [
+        "No problem.",
+        "May I know a convenient time to call you back?",
+        "Would tomorrow work for you? What time would be most convenient?",
+        "Once customer gives a time: Thank you for your time. I'll call you back at <Preferred Time>. Have a great day!"
+      ],
+      "collect": [
+        "callback_text"
+      ],
+      "next": "END"
+    },
+
+    "ASK_CONNECTION_COUNT": {
+      "title": "Connection Count",
+      "goal": "Collect the number of corporate postpaid connections the customer requires.",
+      "script": [
+        "Thank you.",
+        "May I know how many corporate postpaid connections you're looking for for your business?"
+      ],
+      "collect": [
+        "connection_count"
+      ],
+      "next": "ASK_CONNECTION_TYPE"
+    },
+
+    "ASK_CONNECTION_TYPE": {
+      "title": "Connection Type",
+      "goal": "Find out if the customer wants new Vi Business connections or wants to port existing numbers.",
+      "script": [
+        "Are you looking for new Vi Business connections, or would you like to port your existing numbers to Vi Business Postpaid?"
+      ],
+      "collect": [
+        "connection_type"
+      ],
+      "transitions": {
+        "new": "PLAN_INTRO",
+        "port": "ASK_OPERATOR"
+      }
+    },
+
+    "ASK_OPERATOR": {
+      "title": "Current Operator",
+      "goal": "Identify which operator the customer is currently using before porting.",
+      "script": [
+        "Certainly.",
+        "May I know which operator you're currently using?",
+        "Is it Jio, Airtel, BSNL, or another operator?"
+      ],
+      "collect": [
+        "current_operator"
+      ],
+      "next": "PLAN_INTRO"
+    },
+
+    "PLAN_INTRO": {
+      "title": "Vi Business Benefits",
+      "goal": "Introduce Vi Business Corporate Postpaid benefits naturally before recommending a plan.",
+      "script": [
+        "Thank you for the information.",
+        "Many businesses choose Vi Business Corporate Postpaid because our plans include:",
+        "- Unlimited Calling",
+        "- 5G Ready Plans",
+        "- Up to 200 GB Data Rollover",
+        "- Mobile Security",
+        "- Location Tracking",
+        "- Google Workspace (selected plans)",
+        "- Cloud Storage",
+        "- OTT Benefits like SonyLIV and JioHotstar (selected plans)",
+        "- Single Monthly Bill",
+        "- GST Benefits",
+        "- Dedicated Relationship Manager",
+        "- Easy+ Add-on Benefits",
+        "Vi 5G is now available in 130+ cities."
+      ],
+      "next": "RECOMMEND_PLAN"
+    },
+
+    "RECOMMEND_PLAN": {
+      "title": "Recommend Plan",
+      "goal": "Recommend the most suitable Vi Business plan based on connection count. If connections >= 10, highlight the special ₹299 offer. Ask the customer if the plan works for them.",
+      "script": [
+        "Based on your requirement, I recommend one of the following plans:",
+        "| Plan              | Monthly Rental | Data   |",
+        "| Business Plus 349 | ₹349           | 30 GB  |",
+        "| Business Plus 399 | ₹399           | 40 GB  |",
+        "| Business Plus 449 | ₹449           | 60 GB  |",
+        "| Business Plus 549 | ₹549           | 100 GB |",
+        "| Business Plus 899 | ₹899           | 175 GB |",
+        "All plans include Unlimited Calling, 3000 SMS, up to 200 GB Data Rollover, and Mobile Security.",
+        "SPECIAL OFFER (only if special_offer is True / connections >= 10): If you require 10 or more SIM connections, the Business Plus 349 plan can be offered at a special price of ₹299 per connection (subject to eligibility). The plan includes 30 GB Data, Unlimited Calling, 3000 SMS. This is a customized offer available for eligible business customers.",
+        "After presenting plans, ask: Does this plan work for you, or would you prefer a different data option?"
+      ],
+      "collect": [
+        "selected_plan"
+      ],
+      "next": "EXISTING_CUSTOMER"
+    },
+
+    "EXISTING_CUSTOMER": {
+      "title": "Existing Vi Business Customer Check",
+      "goal": "Ask if the company already has any Vi Business Postpaid connections.",
+      "script": [
+        "May I know if your company already has any Vi Business Postpaid connections?"
+      ],
+      "collect": [
+        "existing_vi_customer"
+      ],
+      "transitions": {
+        "yes": "EXISTING_PROCESS",
+        "no": "ASK_BUSINESS_TYPE"
+      }
+    },
+
+    "EXISTING_PROCESS": {
+      "title": "Existing Customer Process",
+      "goal": "Inform the existing customer their request will be processed via existing profile.",
+      "script": [
+        "Thank you.",
+        "Since you're already a Vi Business customer, we'll process your request using your existing company profile.",
+        "Our team will contact you shortly for the next steps."
+      ],
+      "next": "SCHEDULE_VISIT"
+    },
+
+    "ASK_BUSINESS_TYPE": {
+      "title": "Business Type",
+      "goal": "Collect the type of business to determine required KYC documents.",
+      "script": [
+        "Thank you.",
+        "To process a new Vi Business Corporate Postpaid connection, I'll need to confirm a few details.",
+        "What type of business do you have?",
+        "Is it a Private Limited Company, Limited Company, Partnership Firm, or Proprietorship Firm?"
+      ],
+      "collect": [
+        "business_type"
+      ],
+      "next": "DOCUMENTS"
+    },
+
+    "DOCUMENTS": {
+      "title": "Required Documents",
+      "goal": "Explain the required KYC and company documents based on business type. Also mention common documents needed for all businesses. Tell the customer that a complete checklist will be shared over email or WhatsApp.",
+      "script": [
+        "Based on your business type, we'll require the necessary KYC and company documents.",
+        "Additionally, for all businesses we'll need:",
+        "- Company Name Board Photograph",
+        "- Company Workplace Photograph with Employees",
+        "- Registration Mobile Number",
+        "- Registration Email Address",
+        "Our representative will share the complete document checklist with you over email or WhatsApp.",
+        "Mention specific documents from DOCUMENT INFO section based on business_type in memory."
+      ],
+      "collect": [
+        "documents_acknowledged"
+      ],
+      "next": "SCHEDULE_VISIT"
+    },
+
+    "SCHEDULE_VISIT": {
+      "title": "Schedule Document Pickup",
+      "goal": "Arrange for a Vi Business representative to visit the customer's office to collect documents and deliver SIM cards. Collect a convenient date and time.",
+      "script": [
+        "Based on our discussion, I can arrange for our Vi Business representative to visit your office to collect the required documents and deliver the SIM cards.",
+        "I'll also send you the complete list of required documents by email or WhatsApp.",
+        "May I know a convenient date and time for document collection?"
+      ],
+      "collect": [
+        "pickup_text"
+      ],
+      "next": "CLOSING"
+    },
+
+    "CLOSING": {
+      "title": "Closing",
+      "goal": "Confirm the scheduled visit date and time. Thank the customer warmly and close the call.",
+      "script": [
+        "Thank you for confirming.",
+        "Our representative will visit you on the scheduled date and time.",
+        "Thank you for choosing Vi Business. We appreciate the opportunity to support your business and look forward to serving you. Have a wonderful day!"
+      ],
+      "next": "END"
+    },
+
+    "END": {
+      "title": "Conversation End",
+      "goal": "Conversation is complete.",
+      "script": [
+        "Thank you. Have a great day!"
+      ]
+    }
+
+  },
+
+  "plans": {
+    "Business Plus 349": {
+      "price": 349,
+      "offer_price": 299,
+      "offer_min_connections": 10,
+      "data": "30 GB",
+      "voice": "Unlimited",
+      "sms": 3000,
+      "rollover": "200 GB",
+      "mobile_security": true,
+      "location_tracking": false,
+      "google_workspace": false,
+      "cloud_storage": "0 GB",
+      "hotstar": false,
+      "sonyliv": false
+    },
+    "Business Plus 399": {
+      "price": 399,
+      "data": "40 GB",
+      "voice": "Unlimited",
+      "sms": 3000,
+      "rollover": "200 GB",
+      "mobile_security": true,
+      "location_tracking": true,
+      "google_workspace": false,
+      "cloud_storage": "25 GB",
+      "hotstar": false,
+      "sonyliv": false
+    },
+    "Business Plus 449": {
+      "price": 449,
+      "data": "60 GB",
+      "voice": "Unlimited",
+      "sms": 3000,
+      "rollover": "200 GB",
+      "mobile_security": true,
+      "location_tracking": true,
+      "google_workspace": true,
+      "cloud_storage": "50 GB",
+      "hotstar": false,
+      "sonyliv": true
+    },
+    "Business Plus 549": {
+      "price": 549,
+      "data": "100 GB",
+      "voice": "Unlimited",
+      "sms": 3000,
+      "rollover": "200 GB",
+      "mobile_security": true,
+      "location_tracking": true,
+      "google_workspace": true,
+      "cloud_storage": "100 GB",
+      "hotstar": true,
+      "sonyliv": false
+    },
+    "Business Plus 899": {
+      "price": 899,
+      "data": "175 GB",
+      "voice": "Unlimited",
+      "sms": 3000,
+      "rollover": "200 GB",
+      "mobile_security": true,
+      "location_tracking": true,
+      "google_workspace": true,
+      "cloud_storage": "Unlimited",
+      "hotstar": true,
+      "sonyliv": true
+    }
+  },
+
+  "documents": {
+    "private_limited": [
+      "Authorized Signatory POI",
+      "Company PAN Card",
+      "Company GST Certificate",
+      "Company Certificate of Incorporation",
+      "Company List of Directors (MOA)",
+      "Company Address Proof",
+      "Authorization Letter",
+      "Purchase Order",
+      "Declaration"
+    ],
+    "limited": [
+      "Authorized Signatory POI",
+      "Company PAN Card",
+      "Company GST Certificate",
+      "Company Certificate of Incorporation",
+      "Company List of Directors (MOA)",
+      "Company Address Proof",
+      "Authorization Letter",
+      "Purchase Order",
+      "Declaration"
+    ],
+    "partnership": [
+      "Authorized Signatory POI",
+      "Company PAN Card",
+      "Company GST Certificate",
+      "Company Address Proof",
+      "Company List of Directors (MOA)",
+      "Partnership Deed",
+      "Authorization Letter",
+      "Purchase Order",
+      "Declaration"
+    ],
+    "proprietorship": [
+      "Authorized Signatory POI",
+      "Proprietor Personal PAN Card",
+      "Company GST Certificate",
+      "Company Address Proof",
+      "Self Authorization Letter",
+      "Authorization Letter",
+      "Purchase Order",
+      "Declaration"
+    ],
+    "common": [
+      "Company Name Board Photograph",
+      "Company Workplace Photograph with Employees",
+      "Registration Mobile Number",
+      "Registration Email Address"
+    ]
+  },
+
+  "objections": {
+    "happy_provider": [
+      "I completely understand.",
+      "Many of our existing customers felt the same before switching to Vi Business.",
+      "Some additional business benefits we provide include: Google Workspace, Location Tracking, Mobile Security, Data Rollover, Free Profile Tunes, Dedicated Business Support.",
+      "These features help improve productivity while simplifying mobile management."
+    ],
+    "expensive": [
+      "I understand pricing is important for every business.",
+      "Apart from competitive pricing, our plans include valuable business features such as unlimited calling, data rollover, mobile security, GST benefits, consolidated billing, account management support, and productivity tools.",
+      "Based on your budget, I'd be happy to recommend the most suitable plan."
+    ],
+    "jio_airtel": [
+      "That's absolutely fine.",
+      "Many of our customers evaluated multiple providers before choosing Vi Business.",
+      "With Vi Business, you receive: One consolidated monthly bill, Online payment portal, Account Management Portal, Dedicated Relationship Manager, GST Benefits, Easy+ Add-on Services, International Roaming Packs, OTT Add-ons, Additional Data Packs."
+    ],
+    "not_interested": [
+      "I understand.",
+      "Many business customers initially felt the same but found Vi Business features extremely useful for their operations.",
+      "May I take just a moment to share one key benefit that could be relevant to your business?"
+    ]
+  }
+}

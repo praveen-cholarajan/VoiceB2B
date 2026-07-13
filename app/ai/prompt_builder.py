@@ -1,0 +1,254 @@
+from typing import List
+
+
+class PromptBuilder:
+    def build(
+        self,
+        state_name: str,
+        state_config: dict,
+        memory,
+        campaign,
+        strategy,
+    ) -> List[dict]:
+        script = "\n".join(state_config.get("script", []))
+        script = self._replace_placeholders(script, memory)
+        collect = ", ".join(state_config.get("collect", []))
+        customer_data = self._build_customer_data(memory)
+
+        plans = ""
+        if state_name == "RECOMMEND_PLAN":
+            plans = self._build_plans_table(campaign)
+
+        documents = ""
+        if state_name == "DOCUMENTS":
+            documents = self._build_documents(memory)
+
+        objections = self._build_objections(campaign)
+        history = self._build_history(memory)
+        mode = strategy.get("mode", "NORMAL")
+        instruction = strategy.get("instruction", "")
+
+        system_prompt = f"""
+You are an experienced Vi Business Corporate Mobility Sales Executive.
+
+====================================================
+ROLE
+====================================================
+
+You are participating in an ongoing sales conversation.
+
+The application controls the workflow.
+
+Your responsibility is to execute ONLY the CURRENT ACTION.
+
+====================================================
+CURRENT ACTION
+====================================================
+
+{state_name}
+
+====================================================
+SCRIPT
+====================================================
+
+{script}
+
+====================================================
+FIELD TO COLLECT
+====================================================
+
+{collect}
+
+====================================================
+CUSTOMER PROFILE
+====================================================
+
+{customer_data}
+
+====================================================
+RESPONSE MODE
+====================================================
+
+{mode}
+
+Instruction:
+
+{instruction}
+"""
+
+        if plans:
+            system_prompt += f"""
+
+====================================================
+AVAILABLE PLANS
+====================================================
+
+{plans}
+"""
+
+        if documents:
+            system_prompt += f"""
+
+====================================================
+DOCUMENTS
+====================================================
+
+{documents}
+"""
+
+        if objections:
+            system_prompt += f"""
+
+====================================================
+OBJECTION HANDLING
+====================================================
+
+{objections}
+"""
+
+        system_prompt += f"""
+
+====================================================
+LAST CONVERSATION
+====================================================
+
+{history}
+
+====================================================
+RULES
+====================================================
+
+1. Execute ONLY the CURRENT SCRIPT.
+
+2. CURRENT SCRIPT is the next unanswered action.
+
+3. Ask ONLY one question.
+
+4. Never ask two questions.
+
+5. Never repeat answered questions.
+
+6. Never skip workflow.
+
+7. Never invent plan details.
+
+8. Never invent prices.
+
+9. Never invent documents.
+
+10. Never behave like ChatGPT.
+
+11. Never restart conversation.
+
+12. If customer greets you,
+briefly acknowledge and continue CURRENT SCRIPT.
+
+13. If customer asks unrelated question,
+answer shortly and immediately continue CURRENT SCRIPT.
+
+14. Keep response under 40 words.
+
+15. Sound like a professional Vi Business executive.
+
+16. Never expose internal workflow.
+
+17. Return ONLY customer-facing text.
+
+18. Never behave like a general AI assistant.
+
+19. Never respond with:
+    - Hello! How can I assist you today?
+    - How may I help you?
+    - What can I do for you?
+    - How can I help?
+
+20. If the customer greets you:
+    - Briefly acknowledge the greeting.
+    - Immediately continue with the CURRENT SCRIPT.
+
+"""
+
+        messages = [{"role": "system", "content": system_prompt}]
+        messages.extend(memory.history)
+        return messages
+
+    def _replace_placeholders(self, text, memory):
+        placeholders = {
+            "{{customer_name}}": memory.customer_name,
+            "{{business_type}}": memory.business_type,
+            "{{connection_count}}": memory.connection_count,
+            "{{connection_type}}": memory.connection_type,
+            "{{current_operator}}": memory.current_operator,
+            "{{selected_plan}}": memory.selected_plan,
+            "{{recommended_plan}}": memory.recommended_plan,
+        }
+
+        for key, value in placeholders.items():
+            if value is not None:
+                text = text.replace(key, str(value))
+
+        return text
+
+    def _build_history(self, memory):
+        if not memory.history:
+            return "No conversation yet."
+
+        return "\n".join(
+            f"{message['role'].upper()}: {message['content']}"
+            for message in memory.history[-8:]
+        )
+
+    def _build_customer_data(self, memory):
+        fields = [
+            ("Customer Name", memory.customer_name),
+            ("Business Type", memory.business_type),
+            ("Connection Count", memory.connection_count),
+            ("Connection Type", memory.connection_type),
+            ("Current Operator", memory.current_operator),
+            ("Existing Vi Customer", memory.existing_vi_customer),
+            ("Selected Plan", memory.selected_plan),
+            ("Recommended Plan", memory.recommended_plan),
+            ("Callback", memory.callback_text),
+            ("Pickup", memory.pickup_text),
+        ]
+
+        output = [f"{key}: {value}" for key, value in fields if value is not None]
+        if not output:
+            return "No customer information collected."
+
+        return "\n".join(output)
+
+    def _build_plans_table(self, campaign):
+        plans = campaign.load().get("plans", {})
+        if not plans:
+            return "No plans available."
+
+        lines = []
+        for name, plan in plans.items():
+            price = plan.get("price", "-")
+            offer = plan.get("offer_price")
+            formatted_price = f"Rs.{price} (Offer Rs.{offer})" if offer else f"Rs.{price}"
+            lines.append(
+                f"{name} | {formatted_price} | {plan.get('data')} | {plan.get('sms')} SMS"
+            )
+
+        return "\n".join(lines)
+
+    def _build_documents(self, memory):
+        if not memory.required_documents:
+            return "No documents."
+
+        return "\n".join(f"- {doc}" for doc in memory.required_documents)
+
+    def _build_objections(self, campaign):
+        objections = campaign.load().get("objections", {})
+        if not objections:
+            return "No objection scripts."
+
+        output = []
+        for title, scripts in objections.items():
+            output.append(f"\n[{title}]")
+            for line in scripts:
+                output.append(f"- {line}")
+
+        return "\n".join(output)
