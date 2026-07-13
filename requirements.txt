@@ -1,0 +1,10 @@
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+python-dotenv==1.1.1
+openai==1.99.9
+httpx==0.28.1
+requests==2.32.4
+websockets==15.0.1
+twilio==9.7.0
+pydantic==2.11.7
+typing_extensions==4.14.1
