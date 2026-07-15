@@ -15,6 +15,11 @@ class ConversationOrchestrator:
         self.strategy = ResponseStrategy()
         self.llm = LLMService()
 
+    def start(self):
+        greeting = "Hello! Good morning."
+        self.memory.add_ai_message(greeting)
+        return greeting
+    
     def process(self, customer_message: str):
         if customer_message:
             self.memory.add_user_message(customer_message)
