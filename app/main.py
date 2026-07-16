@@ -2,6 +2,14 @@ from fastapi import FastAPI
 from app.api.routes import router as conversation_router
 from app.telephony.voice_webhook import router as voice_router
 
+streamlit_process = None
+
+import subprocess
+import sys
+from fastapi.responses import RedirectResponse
+from app.telephony.config import TelephonyConfig
+
+
 app = FastAPI(
     title="Conversation API",
     version="1.0.0"
@@ -21,3 +29,5 @@ def root():
         "status": "Running",
         "message": "Welcome to Conversation API"
     }
+
+ 
