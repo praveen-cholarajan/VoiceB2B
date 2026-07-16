@@ -1,15 +1,21 @@
-from app.telephony.twilio_client import TwilioClient
+import os
+import sys
 
-def main():
-
-    client = TwilioClient()
-
-    result = client.make_call(
-        "+910000000000"      # Customer mobile number
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../..")
     )
+)
 
-    print(result)
+from app.telephony.twilio_client import TwilioClient
+from app.telephony.config import TelephonyConfig
 
+print("SID :", TelephonyConfig.ACCOUNT_SID)
+print("FROM:", TelephonyConfig.FROM_NUMBER)
+print("URL :", TelephonyConfig.VOICE_WEBHOOK)
 
-if __name__ == "__main__":
-    main()
+client = TwilioClient()
+
+result = client.make_call("+918760022251")
+
+print(result)

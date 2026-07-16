@@ -14,23 +14,38 @@ orchestrator = ConversationOrchestrator()
 
 
 # =========================================================
+# Helper
+# =========================================================
+
+async def get_request_data(request: Request):
+    """
+    Supports both:
+    1. Twilio (form-urlencoded)
+    2. Postman (application/json)
+    """
+
+    content_type = request.headers.get("content-type", "")
+
+    if "application/json" in content_type:
+        return await request.json()
+
+    return await request.form()
+
+
+# =========================================================
 # START VOICE CALL
 # =========================================================
 
 @router.post("/voice")
 async def voice_webhook(request: Request):
-    """
-    Twilio invokes this endpoint when the customer
-    answers the outbound call.
-    """
 
-    form = await request.form()
+    data = await get_request_data(request)
 
     print("\n========================================")
     print("VOICE CALL STARTED")
-    print("Call SID :", form.get("CallSid"))
-    print("From     :", form.get("From"))
-    print("To       :", form.get("To"))
+    print("Call SID :", data.get("CallSid"))
+    print("From     :", data.get("From"))
+    print("To       :", data.get("To"))
     print("========================================\n")
 
     try:
@@ -74,19 +89,16 @@ async def voice_webhook(request: Request):
 
 @router.post("/voice/process")
 async def process_voice(request: Request):
-    """
-    Twilio sends every customer speech response here.
-    """
 
-    form = await request.form()
+    data = await get_request_data(request)
 
-    call_sid = form.get("CallSid")
+    call_sid = data.get("CallSid")
 
     customer_message = (
-        form.get("SpeechResult") or ""
+        data.get("SpeechResult") or ""
     ).strip()
 
-    confidence = form.get("Confidence")
+    confidence = data.get("Confidence")
 
     print("\n========================================")
     print("VOICE INPUT")
@@ -124,7 +136,7 @@ async def process_voice(request: Request):
     response = VoiceResponse()
 
     # -----------------------------------------------------
-    # End conversation if state reached END
+    # Conversation Completed
     # -----------------------------------------------------
 
     if orchestrator.memory.current_state == "END":
@@ -143,7 +155,7 @@ async def process_voice(request: Request):
         )
 
     # -----------------------------------------------------
-    # Continue conversation
+    # Continue Conversation
     # -----------------------------------------------------
 
     gather = Gather(
