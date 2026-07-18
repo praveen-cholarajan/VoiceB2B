@@ -12,6 +12,24 @@ router = APIRouter(tags=["Telephony"])
 
 orchestrator = ConversationOrchestrator()
 
+from pathlib import Path
+from datetime import datetime
+
+LOG_FILE = Path("logs/conversation.log")
+LOG_FILE.parent.mkdir(exist_ok=True)
+
+
+def write_log(call_sid, customer_message, ai_reply, confidence=None):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        f.write("=" * 80 + "\n")
+        f.write(f"Time       : {timestamp}\n")
+        f.write(f"Call SID   : {call_sid}\n")
+        f.write(f"Confidence : {confidence}\n")
+        f.write(f"Customer   : {customer_message}\n")
+        f.write(f"AI         : {ai_reply}\n")
+        f.write("=" * 80 + "\n\n")
 
 # =========================================================
 # Helper
@@ -132,6 +150,12 @@ async def process_voice(request: Request):
             )
 
     print("AI :", ai_reply)
+
+    write_log(
+    call_sid=call_sid,
+    customer_message=customer_message,
+    ai_reply=ai_reply,
+    confidence=confidence)
 
     response = VoiceResponse()
 
