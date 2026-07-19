@@ -20,6 +20,13 @@ class TwilioClient:
 
         try:
 
+            print("\n========================================")
+            print("VOICE CLIENT CALL STARTED")
+            print("TO NUMBER :", to_number)
+            print("FROM_NUMBER     :", TelephonyConfig.FROM_NUMBER)
+            print("VOICE_WEBHOOK       :", TelephonyConfig.VOICE_WEBHOOK)
+            print("========================================\n")
+
             call = self.client.calls.create(
 
                 to=to_number,
