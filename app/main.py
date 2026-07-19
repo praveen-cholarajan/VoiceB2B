@@ -44,6 +44,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api.routes import router as conversation_router
 from app.telephony.voice_webhook import router as voice_router
 from app.api.call_api import router as call_router
+from app.api.chat_api import router as chat_router
 
 app = FastAPI(
     title="Conversation API",
@@ -79,6 +80,11 @@ app.include_router(
 
 app.include_router(
     call_router,
+    prefix="/api"
+)
+
+app.include_router(
+    chat_router,
     prefix="/api"
 )
 
