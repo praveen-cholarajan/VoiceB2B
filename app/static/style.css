@@ -9,6 +9,8 @@ html,
 body {
     height: 100%;
     background: #f4f6f9;
+    margin: 0;
+    overflow: hidden;
 }
 
 /* ===========================
@@ -62,6 +64,7 @@ h3 {
 
 #chatWindow {
     overflow-y: auto;
+    height: 100%;
     background: #eef2f7;
 }
 
@@ -124,17 +127,17 @@ h3 {
     background: white;
 }
 
-/* Scrollbar */
 
+/* Optional: Better scrollbar */
 #chatWindow::-webkit-scrollbar {
     width: 8px;
 }
 
 #chatWindow::-webkit-scrollbar-thumb {
-    background: #cfcfcf;
-    border-radius: 10px;
+    background: #c1c1c1;
+    border-radius: 4px;
 }
 
 #chatWindow::-webkit-scrollbar-track {
-    background: transparent;
+    background: #f1f1f1;
 }
