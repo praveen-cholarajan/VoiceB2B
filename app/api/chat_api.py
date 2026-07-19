@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.telephony.voice_webhook import orchestrator
+from app.telephony.voice_webhook import orchestrator 
 
 router = APIRouter(tags=["Chat"])
 
@@ -11,17 +11,15 @@ def get_chat():
     messages = []
 
     # If ConversationMemory has messages
-    if hasattr(orchestrator.memory, "messages"):
+    if hasattr(orchestrator.memory, "history"):
 
         for msg in orchestrator.memory.history:
 
-            role = msg.get("role", "")
+            role = msg.get("role", "").lower()
 
-            # Convert roles for UI
-            if role == "user":
+            if role in ["user", "human", "customer"]:
                 role = "customer"
-
-            elif role == "assistant":
+            elif role in ["assistant", "ai"]:
                 role = "ai"
 
             messages.append({
