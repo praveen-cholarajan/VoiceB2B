@@ -164,6 +164,7 @@ async def process_voice(request: Request):
     # -----------------------------------------------------
     # Conversation Completed
     # -----------------------------------------------------
+    print("VOICE WEBHOOK - Current State :", orchestrator.memory.current_state)
 
     if orchestrator.memory.current_state == "END":
 
