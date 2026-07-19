@@ -136,9 +136,11 @@ async def process_voice(request: Request):
 
         try:
 
-            ai_reply = orchestrator.process(
+            ai_response = orchestrator.process(
                 customer_message
             )
+            print("AI Response:", ai_response)
+            ai_reply = ai_response.get("reply", "")
 
         except Exception as ex:
 
@@ -149,7 +151,7 @@ async def process_voice(request: Request):
                 "Could you please repeat that?"
             )
 
-    print("AI :", ai_reply)
+    print("AI Replay:", ai_reply)
 
     write_log(
     call_sid=call_sid,
