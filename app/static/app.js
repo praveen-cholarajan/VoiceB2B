@@ -40,7 +40,7 @@ callButton.addEventListener("click", async () => {
             },
 
             body: JSON.stringify({
-                phone: phone
+                to_number: phone
             })
 
         });
