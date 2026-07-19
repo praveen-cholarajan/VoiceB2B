@@ -13,7 +13,7 @@ def get_chat():
     # If ConversationMemory has messages
     if hasattr(orchestrator.memory, "messages"):
 
-        for msg in orchestrator.memory.messages:
+        for msg in orchestrator.memory.history:
 
             role = msg.get("role", "")
 
