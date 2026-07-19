@@ -4,7 +4,8 @@ from app.ai.response_strategy import ResponseStrategy
 from app.campaign.campaign_loader import CampaignLoader
 from app.customer.customer_memory import CustomerMemory
 from app.rules.business_rule_engine import BusinessRuleEngine
-
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 class ConversationOrchestrator:
     def __init__(self):
@@ -16,7 +17,19 @@ class ConversationOrchestrator:
         self.llm = LLMService()
 
     def start(self):
-        greeting = "Hello! Good morning."
+         # Current time in India (IST)
+        current_time = datetime.now(ZoneInfo("Asia/Kolkata"))
+        current_hour = current_time.hour
+
+        if 5 <= current_hour < 12:
+            greeting = "Hello! Good morning."
+        elif 12 <= current_hour < 17:
+            greeting = "Hello! Good afternoon."
+        elif 17 <= current_hour < 21:
+            greeting = "Hello! Good evening."
+        else:
+            greeting = "Hello!"
+            
         self.memory.add_ai_message(greeting)
         return greeting
     
