@@ -1,0 +1,140 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+html,
+body {
+    height: 100%;
+    background: #f4f6f9;
+}
+
+/* ===========================
+   LEFT PANEL
+=========================== */
+
+.border-end {
+    background: #ffffff;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+}
+
+h3 {
+    color: #d71920;
+    font-weight: 700;
+}
+
+.form-label {
+    font-weight: 600;
+}
+
+.form-control {
+    border-radius: 10px;
+}
+
+.btn-primary {
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: 600;
+    background: #d71920;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #b0151a;
+}
+
+#status {
+    font-weight: bold;
+    color: green;
+}
+
+#callSid {
+    font-size: 13px;
+    word-break: break-all;
+    color: #666;
+}
+
+/* ===========================
+   CHAT AREA
+=========================== */
+
+#chatWindow {
+    overflow-y: auto;
+    background: #eef2f7;
+}
+
+/* Message Container */
+
+.message {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+/* Customer */
+
+.customer {
+    justify-content: flex-start;
+}
+
+/* AI */
+
+.ai {
+    justify-content: flex-end;
+}
+
+/* Bubble */
+
+.bubble {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    word-wrap: break-word;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* Customer Bubble */
+
+.customer .bubble {
+    background: white;
+    color: black;
+    border: 1px solid #ddd;
+}
+
+/* AI Bubble */
+
+.ai .bubble {
+    background: #d71920;
+    color: white;
+}
+
+/* Timestamp */
+
+.time {
+    font-size: 11px;
+    color: gray;
+    margin-top: 4px;
+}
+
+/* Header */
+
+.border-bottom {
+    background: white;
+}
+
+/* Scrollbar */
+
+#chatWindow::-webkit-scrollbar {
+    width: 8px;
+}
+
+#chatWindow::-webkit-scrollbar-thumb {
+    background: #cfcfcf;
+    border-radius: 10px;
+}
+
+#chatWindow::-webkit-scrollbar-track {
+    background: transparent;
+}
