@@ -272,8 +272,11 @@ class BusinessRuleEngine:
         # -------------------------------------------------
         # Transition matching
         # -------------------------------------------------
-        
-        
+        print("State:", state_name)
+        print("Signal Intent:", signal.get("intent"))
+        print("Intent:", intent)
+        print("Transitions:", transitions)
+
         if isinstance(transitions, dict):
 
             key = intent.lower() if intent else ""
