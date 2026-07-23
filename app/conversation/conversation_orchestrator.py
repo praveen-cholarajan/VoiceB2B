@@ -20,6 +20,9 @@ class ConversationOrchestrator:
          # Current time in India (IST)
         current_time = datetime.now(ZoneInfo("Asia/Kolkata"))
         current_hour = current_time.hour
+        # Set initial conversation state
+        self.memory.reset()
+        self.memory.update_state("GREETING") 
 
         if 5 <= current_hour < 12:
             greeting = "Hello! Good morning."
@@ -29,7 +32,7 @@ class ConversationOrchestrator:
             greeting = "Hello! Good evening."
         else:
             greeting = "Hello!"
-            
+
         self.memory.add_ai_message(greeting)
         return greeting
     
