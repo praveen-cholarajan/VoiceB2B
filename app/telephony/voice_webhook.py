@@ -151,13 +151,6 @@ async def process_voice(request: Request):
                 "Could you please repeat that?"
             )
 
-    print("AI Replay:", ai_reply)
-
-    write_log(
-    call_sid=call_sid,
-    customer_message=customer_message,
-    ai_reply=ai_reply,
-    confidence=confidence)
 
     response = VoiceResponse()
 
