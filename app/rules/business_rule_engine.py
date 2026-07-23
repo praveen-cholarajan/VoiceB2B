@@ -272,10 +272,13 @@ class BusinessRuleEngine:
         # -------------------------------------------------
         # Transition matching
         # -------------------------------------------------
+        
+        
         if isinstance(transitions, dict):
 
             key = intent.lower() if intent else ""
-
+            print("Transitions key :", key)
+            print("Transitions 1:", transitions[key])
             if key in transitions:
 
                 result["move_next"] = True
@@ -285,7 +288,7 @@ class BusinessRuleEngine:
                 return result
 
         elif isinstance(transitions, str):
-
+            print("Transitions 2:", transitions)
             result["move_next"] = True
             result["completed"] = True
             result["next_state"] = transitions
