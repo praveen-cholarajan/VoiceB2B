@@ -273,7 +273,23 @@ class PromptBuilder:
         - completed = false
         - value = null
         - reply = politely ask for their name again.  
+    40. Determine completed using ONLY the customer's latest message.
 
+    41. Ignore the assistant's previous messages and the CURRENT SCRIPT when deciding completed.
+
+    42. Never return completed = false simply because the CURRENT SCRIPT asks a question.
+
+    43. If the customer's latest message answers the FIELD TO COLLECT, return:
+        completed = true
+        value = extracted value
+
+    44. If the customer's latest message does not answer the FIELD TO COLLECT, return:
+        completed = false
+        value = null
+
+    45. Do not use your own generated reply to determine completed.
+
+    46. completed must always be based ONLY on the customer's latest utterance.
     ====================================================
     OUTPUT FORMAT
     ====================================================
