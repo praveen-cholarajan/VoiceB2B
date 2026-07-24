@@ -252,10 +252,21 @@ class PromptBuilder:
     extract ONLY CURRENT FIELD.
 
     37. reply must contain ONLY customer-facing speech.
+    
     38. If CURRENT ACTION is GREETING:
         - completed must be true.
         - value must be null.
         - reply should contain only the greeting.
+
+    39. If CURRENT ACTION is ASK_CUSTOMER_NAME:
+        - If the customer provides their name,
+            completed = true
+            value = customer's name
+            reply = thank the customer and naturally ask the next scripted question.
+        - If the customer greets you, asks an unrelated question, or does not provide their name,
+            completed = false
+            value = null
+            reply = respond naturally and politely, then ask for the customer's name again.   
 
     ====================================================
     OUTPUT FORMAT
