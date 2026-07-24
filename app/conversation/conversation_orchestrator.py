@@ -272,7 +272,7 @@ class ConversationOrchestrator:
 
         completed = validation["completed"]
         value = validation["value"]
-        acknowledgement = validation["reply"]
+        
 
         # ----------------------------------------
         # STEP 2
@@ -309,26 +309,23 @@ class ConversationOrchestrator:
         # Current state after rules
         # ----------------------------------------
 
-        current_state = self.memory.current_state
-
-        current_state_config = self.campaign.get_state(
-            current_state
-        )
-
-        next_question = current_state_config["script"]
+        state_name = self.memory.current_state 
+        state = self.campaign.get_state(state_name) 
+        strategy = self.strategy.get_strategy(state_name=state_name,
+                                               rule_result=rule_result,
+                                                 memory=self.memory) 
+        print("strategy :", strategy) 
+        conversation_messages = self.prompt_builder.build(state_name=state_name, 
+                                                          state_config=state, 
+                                                          memory=self.memory, 
+                                                          campaign=self.campaign, 
+                                                          strategy=strategy )
 
         # ----------------------------------------
         # STEP 4
         # Final Reply
         # ----------------------------------------
-
-        if acknowledgement:
-
-            reply = acknowledgement + " " + next_question
-
-        else:
-
-            reply = next_question
+        reply = self.llm.generate(conversation_messages) 
 
         self.memory.add_ai_message(reply)
 
