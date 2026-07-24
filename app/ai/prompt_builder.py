@@ -1,7 +1,109 @@
 from typing import List
-
+import json
 
 class PromptBuilder:
+
+    def build_validation_prompt(
+        self,
+        state_name,
+        state_config,
+        memory,
+        campaign,
+    ):
+
+        collect = state_config.get("collect", "")
+
+        history = json.dumps(memory.history, indent=2)
+
+        latest_customer = ""
+
+        for msg in reversed(memory.history):
+            if msg["role"] == "user":
+                latest_customer = msg["content"]
+                break
+
+        system_prompt = f"""
+            You are an information extraction engine.
+
+            Your ONLY responsibility is to determine whether the customer's LATEST message answers the CURRENT FIELD.
+
+            ====================================================
+            CURRENT STATE
+            ====================================================
+
+            {state_name}
+
+            ====================================================
+            FIELD TO COLLECT
+            ====================================================
+
+            {collect}
+
+            ====================================================
+            LATEST CUSTOMER MESSAGE
+            ====================================================
+
+            {latest_customer}
+
+            ====================================================
+            CONVERSATION HISTORY
+            ====================================================
+
+            {history}
+
+            ====================================================
+            RULES
+            ====================================================
+
+            1. Look ONLY at the LATEST CUSTOMER MESSAGE.
+
+            2. Ignore previous assistant messages.
+
+            3. Ignore previous customer messages.
+
+            4. Ignore the workflow.
+
+            5. Do NOT generate the next question.
+
+            6. Do NOT continue the conversation.
+
+            7. Do NOT explain anything.
+
+            8. If the latest customer message contains the required information:
+
+            completed = true
+
+            value = extracted value
+
+            9. Otherwise:
+
+            completed = false
+
+            value = null
+
+            10. Return ONLY valid JSON.
+
+            Example:
+
+            {{
+                "completed": true,
+                "value": "Praveen"
+            }}
+
+            or
+
+            {{
+                "completed": false,
+                "value": null
+            }}
+            """
+
+        return [
+            {
+                "role": "system",
+                "content": system_prompt,
+            }
+        ]
 
     def build(
         self,

@@ -11,6 +11,19 @@ class LLMService:
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         print("[OK] OpenAI client initialized.")
 
+    def validate(self, messages):
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            max_completion_tokens=80,
+            response_format={"type": "json_object"}
+        )
+
+        answer = response.choices[0].message.content
+
+        return json.loads(answer)
+    
     def generate(self, messages):
 
         response = self.client.chat.completions.create(

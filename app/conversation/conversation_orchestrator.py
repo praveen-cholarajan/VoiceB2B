@@ -38,61 +38,59 @@ class ConversationOrchestrator:
         self.memory.add_ai_message(greeting)
          # Move to first workflow state
         self.memory.update_state("ASK_CUSTOMER_NAME")
-        
+
         return greeting
     
     def process(self, customer_message: str):
 
+        # ----------------------------------------
+        # Save customer message
+        # ----------------------------------------
+
         if customer_message:
             self.memory.add_user_message(customer_message)
+
+        print("\n===================================")
+        print("Customer :", customer_message)
+        print("Current State :", self.memory.current_state)
+
+        # ----------------------------------------
+        # Current State
+        # ----------------------------------------
 
         state_name = self.memory.current_state
         state = self.campaign.get_state(state_name)
 
-        print("\n===================================")
-        print("Current State :", state_name)
-        print("Customer      :", customer_message)
+        # ----------------------------------------
+        # STEP 1
+        # Validate previous question
+        # ----------------------------------------
 
-        # Empty rule result for initial strategy
-        rule_result = {}
-        print("rule_result before processing:", rule_result)
-        strategy = self.strategy.get_strategy(
-            state_name=state_name,
-            rule_result=rule_result,
-            memory=self.memory,
-        )
-
-        print("Strategy :", strategy)
-
-        messages = self.prompt_builder.build(
+        validation_messages = self.prompt_builder.build_validation_prompt(
             state_name=state_name,
             state_config=state,
             memory=self.memory,
-            campaign=self.campaign,
-            strategy=strategy,
+            campaign=self.campaign
         )
 
-        print("\nGenerating AI Response...")
+        validation = self.llm.validate(validation_messages)
 
-        ai_result = self.llm.generate(messages)
+        print("\nValidation :", validation)
 
-        print("LLM Result :", ai_result)
+        completed = validation.get("completed", False)
+        value = validation.get("value")
 
-        completed = ai_result.get("completed", False)
-        value = ai_result.get("value")
-        reply = ai_result.get("reply", "")
-
-        # ------------------------------------------------
-        # Save collected value
-        # ------------------------------------------------
+        # ----------------------------------------
+        # STEP 2
+        # Save value
+        # ----------------------------------------
 
         if completed:
 
             collect = state.get("collect")
 
-            print("Completed :", completed)
-            print("Collected Field :", collect)
-            print("Collected Value :", value)
+            print("Collected :", collect)
+            print("Value :", value)
 
             if collect == "customer_name":
                 self.memory.update_customer_name(value)
@@ -112,38 +110,62 @@ class ConversationOrchestrator:
             elif collect == "selected_plan":
                 self.memory.update_selected_plan(value)
 
-            # --------------------------------------------
-            # Business Rule Engine
-            # --------------------------------------------
+            # ----------------------------------------
+            # STEP 3
+            # Business Rules
+            # ----------------------------------------
 
             rule_result = self.rule_engine.process(
                 state_name=state_name,
                 customer_message=customer_message,
-                memory=self.memory,
+                memory=self.memory
             )
 
-            print("Rule Result after processing :", rule_result)
+            print("Rule Result :", rule_result)
 
             if rule_result.get("move_next"):
 
                 next_state = rule_result.get("next_state")
 
-                print("Next State :", next_state)
-
                 if next_state:
 
                     self.memory.update_state(next_state)
 
-                    print("Moved to :", next_state)
+                    print("Moved To :", next_state)
 
         else:
+            rule_result = {}    
+            print("Current question not completed.")
 
-            print("Customer has NOT answered current question.")
-            print("Staying in :", self.memory.current_state)
+        # ----------------------------------------
+        # STEP 4
+        # Build prompt for CURRENT state
+        # ----------------------------------------
 
-        # --------------------------------------------
-        # Save AI reply
-        # --------------------------------------------
+        state_name = self.memory.current_state
+        state = self.campaign.get_state(state_name)
+
+        strategy = self.strategy.get_strategy(
+            state_name=state_name,
+            rule_result=rule_result,
+            memory=self.memory
+        )
+        print("strategy :", strategy)
+        conversation_messages = self.prompt_builder.build(
+            state_name=state_name,
+            state_config=state,
+            memory=self.memory,
+            campaign=self.campaign,
+            strategy=strategy
+        ) 
+        # ----------------------------------------
+        # STEP 5
+        # Generate reply ONLY
+        # ----------------------------------------
+
+        reply = self.llm.generate_reply(conversation_messages)
+
+        print("\nAI :", reply)
 
         self.memory.add_ai_message(reply)
 
