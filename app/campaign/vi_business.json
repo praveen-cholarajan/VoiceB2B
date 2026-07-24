@@ -23,7 +23,7 @@
   "title": "Ask Customer Name",
   "goal": "Find out the customer's name before continuing the conversation.",
   "script": [
-    "May I know your name, please?"
+    "I'm calling from Vi Business. May I know your name, please?"
   ],
   "collect": [
     "customer_name"
@@ -37,7 +37,6 @@
   "goal": "Introduce yourself and explain why you are calling.",
   "script": [
     "Nice to meet you, {{customer_name}}.",
-    "I'm calling from Vi Business.",
     "I'd like to understand your business mobility requirements so I can recommend the most suitable plan."
   ],
   "collect": [],
