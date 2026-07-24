@@ -66,19 +66,28 @@ class ConversationOrchestrator:
         # Validate previous question
         # ----------------------------------------
 
-        validation_messages = self.prompt_builder.build_validation_prompt(
-            state_name=state_name,
-            state_config=state,
-            memory=self.memory,
-            campaign=self.campaign
-        )
+        if state_name == "ASK_CUSTOMER_NAME":
 
-        validation = self.llm.validate(validation_messages)
+            # First interaction after greeting
+            completed = True
+            value = customer_message.strip()
 
-        print("\nValidation :", validation)
+        else:
 
-        completed = validation.get("completed", False)
-        value = validation.get("value")
+            validation_messages = self.prompt_builder.build_validation_prompt(
+                state_name=state_name,
+                state_config=state,
+                memory=self.memory,
+                campaign=self.campaign,
+            )
+
+            validation = self.llm.validate(validation_messages)
+
+            print("\nValidation :", validation)
+
+            completed = validation.get("completed", False)
+            value = validation.get("value")
+        
 
         # ----------------------------------------
         # STEP 2
@@ -163,7 +172,7 @@ class ConversationOrchestrator:
         # Generate reply ONLY
         # ----------------------------------------
 
-        reply = self.llm.generate_reply(conversation_messages)
+        reply = self.llm.generate(conversation_messages)
 
         print("\nAI :", reply)
 
