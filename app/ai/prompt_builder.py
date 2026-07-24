@@ -12,36 +12,24 @@ class PromptBuilder:
         strategy,
     ):
 
-        script = state_config.get("script", "")
+        script = "\n".join(state_config.get("script", []))
+        script = self._replace_placeholders(script, memory)
+        collect = ", ".join(state_config.get("collect", []))
+        customer_data = self._build_customer_data(memory)
 
-        collect = state_config.get("collect", "")
+        plans = ""
+        if state_name == "RECOMMEND_PLAN":
+            plans = self._build_plans_table(campaign)
 
-        instruction = state_config.get("instruction", "")
+        documents = ""
+        if state_name == "DOCUMENTS":
+            documents = self._build_documents(memory)
 
-        mode = state_config.get("mode", "NORMAL")
-
-        plans = campaign.get_plans(memory)
-
-        documents = campaign.get_documents(memory)
-
-        objections = campaign.get_objections()
-
-        customer_data = f"""
-Customer Name : {memory.customer_name}
-Business Type : {memory.business_type}
-Connection Count : {memory.connection_count}
-Connection Type : {memory.connection_type}
-Current Operator : {memory.current_operator}
-Selected Plan : {memory.selected_plan}
-"""
-
-        history = "\n".join(
-            [
-                f'{m["role"]}: {m["content"]}'
-                for m in memory.history
-            ]
-        )
-
+        objections = self._build_objections(campaign)
+        history = self._build_history(memory)
+        mode = strategy.get("mode", "NORMAL")
+        instruction = strategy.get("instruction", "") 
+        
         system_prompt = f"""
     You are an experienced Vi Business Corporate Mobility Sales Executive.
 
