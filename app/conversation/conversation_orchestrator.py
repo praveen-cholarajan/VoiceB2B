@@ -1,3 +1,5 @@
+from sympy import true
+
 from app.ai.llm_service import LLMService
 from app.ai.prompt_builder import PromptBuilder
 from app.ai.response_strategy import ResponseStrategy
@@ -48,9 +50,12 @@ class ConversationOrchestrator:
         print("Current State :", state_name)
         print("Customer      :", customer_message)
 
+        # Empty rule result for initial strategy
+        rule_result = {}
+
         strategy = self.strategy.get_strategy(
             state_name=state_name,
-            rule_result={},
+            rule_result=rule_result,
             memory=self.memory,
         )
 
@@ -74,14 +79,15 @@ class ConversationOrchestrator:
         value = ai_result.get("value")
         reply = ai_result.get("reply", "")
 
-        # --------------------------------------
-        # Update Memory
-        # --------------------------------------
+        # ------------------------------------------------
+        # Save collected value
+        # ------------------------------------------------
 
         if completed:
 
             collect = state.get("collect")
 
+            print("Completed :", completed)
             print("Collected Field :", collect)
             print("Collected Value :", value)
 
@@ -103,19 +109,38 @@ class ConversationOrchestrator:
             elif collect == "selected_plan":
                 self.memory.update_selected_plan(value)
 
-            next_state = state.get("next_state")
+            # --------------------------------------------
+            # Business Rule Engine
+            # --------------------------------------------
 
-            if next_state:
+            rule_result = self.rule_engine.process(
+                state_name=state_name,
+                customer_message=customer_message,
+                memory=self.memory,
+            )
 
-                print("Moving to Next State :", next_state)
+            print("Rule Result :", rule_result)
 
-                self.memory.update_state(next_state)
+            if rule_result.get("move_next"):
 
-                state_name = next_state
+                next_state = rule_result.get("next_state")
+
+                print("Next State :", next_state)
+
+                if next_state:
+
+                    self.memory.update_state(next_state)
+
+                    print("Moved to :", next_state)
 
         else:
 
-            print("Current question not answered. Staying in :", state_name)
+            print("Customer has NOT answered current question.")
+            print("Staying in :", self.memory.current_state)
+
+        # --------------------------------------------
+        # Save AI reply
+        # --------------------------------------------
 
         self.memory.add_ai_message(reply)
 
