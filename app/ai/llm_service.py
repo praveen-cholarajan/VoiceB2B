@@ -21,16 +21,9 @@ class LLMService:
 
         answer = response.choices[0].message.content or ""
         answer = self.clean_response(answer)
-
-        print("\n========== RAW RESPONSE ==========")
-        print(answer)
-
         try:
 
             result = json.loads(answer)
-
-            print("\n========== PARSED RESPONSE ==========")
-            print(result)
 
             return result
 

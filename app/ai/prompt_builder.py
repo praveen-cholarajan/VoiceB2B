@@ -267,7 +267,7 @@ class PromptBuilder:
         If the customer's name can be identified:
         - completed = true
         - value = the extracted name only
-        - reply = a short acknowledgement only. Do not ask the next question.
+        - reply = ask the next question.
 
         If the customer does not provide their name:
         - completed = false
