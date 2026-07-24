@@ -29,7 +29,7 @@ class PromptBuilder:
         history = self._build_history(memory)
         mode = strategy.get("mode", "NORMAL")
         instruction = strategy.get("instruction", "") 
-        
+
         system_prompt = f"""
     You are an experienced Vi Business Corporate Mobility Sales Executive.
 
@@ -252,6 +252,10 @@ class PromptBuilder:
     extract ONLY CURRENT FIELD.
 
     37. reply must contain ONLY customer-facing speech.
+    38. If CURRENT ACTION is GREETING:
+        - completed must be true.
+        - value must be null.
+        - reply should contain only the greeting.
 
     ====================================================
     OUTPUT FORMAT
