@@ -37,6 +37,7 @@ class ConversationOrchestrator:
         return greeting
     
     def process(self, customer_message: str):
+
         if customer_message:
             self.memory.add_user_message(customer_message)
 
@@ -47,26 +48,12 @@ class ConversationOrchestrator:
         print("Current State :", state_name)
         print("Customer      :", customer_message)
 
-        rule_result = self.rule_engine.process(
-            state_name=state_name,
-            customer_message=customer_message,
-            memory=self.memory,
-        )
-        print("Rule Result :", rule_result)
-
-        if rule_result.get("move_next"):
-            next_state = rule_result["next_state"]
-            print("Next State :", next_state)
-
-            self.memory.update_state(next_state)
-            state_name = next_state
-            state = self.campaign.get_state(state_name)
-
         strategy = self.strategy.get_strategy(
             state_name=state_name,
-            rule_result=rule_result,
+            rule_result={},
             memory=self.memory,
         )
+
         print("Strategy :", strategy)
 
         messages = self.prompt_builder.build(
@@ -78,14 +65,63 @@ class ConversationOrchestrator:
         )
 
         print("\nGenerating AI Response...")
-        reply = self.llm.generate(messages)
-        print("AI :", reply)
+
+        ai_result = self.llm.generate(messages)
+
+        print("LLM Result :", ai_result)
+
+        completed = ai_result.get("completed", False)
+        value = ai_result.get("value")
+        reply = ai_result.get("reply", "")
+
+        # --------------------------------------
+        # Update Memory
+        # --------------------------------------
+
+        if completed:
+
+            collect = state.get("collect")
+
+            print("Collected Field :", collect)
+            print("Collected Value :", value)
+
+            if collect == "customer_name":
+                self.memory.update_customer_name(value)
+
+            elif collect == "connection_count":
+                self.memory.update_connection_count(value)
+
+            elif collect == "connection_type":
+                self.memory.update_connection_type(value)
+
+            elif collect == "current_operator":
+                self.memory.update_current_operator(value)
+
+            elif collect == "business_type":
+                self.memory.update_business_type(value)
+
+            elif collect == "selected_plan":
+                self.memory.update_selected_plan(value)
+
+            next_state = state.get("next_state")
+
+            if next_state:
+
+                print("Moving to Next State :", next_state)
+
+                self.memory.update_state(next_state)
+
+                state_name = next_state
+
+        else:
+
+            print("Current question not answered. Staying in :", state_name)
 
         self.memory.add_ai_message(reply)
 
         return {
             "reply": reply,
-            "state": state_name,
+            "state": self.memory.current_state,
             "memory": {
                 "customer_name": self.memory.customer_name,
                 "connection_count": self.memory.connection_count,

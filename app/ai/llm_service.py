@@ -1,31 +1,52 @@
+import json
 import os
 import re
 
 from openai import OpenAI
 
 
-
 class LLMService:
+
     def __init__(self):
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         print("[OK] OpenAI client initialized.")
 
     def generate(self, messages):
+
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            max_completion_tokens=120,
+            max_completion_tokens=200,
         )
 
         answer = response.choices[0].message.content or ""
         answer = self.clean_response(answer)
 
-        print("\n========== RESPONSE ==========\n")
+        print("\n========== RAW RESPONSE ==========")
         print(answer)
 
-        return answer
+        try:
+
+            result = json.loads(answer)
+
+            print("\n========== PARSED RESPONSE ==========")
+            print(result)
+
+            return result
+
+        except Exception as ex:
+
+            print("JSON Parse Error :", ex)
+
+            # Fallback if the model returns plain text
+            return {
+                "completed": False,
+                "value": None,
+                "reply": answer
+            }
 
     def clean_response(self, text: str):
+
         if not text:
             return ""
 
