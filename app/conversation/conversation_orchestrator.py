@@ -52,7 +52,7 @@ class ConversationOrchestrator:
 
         # Empty rule result for initial strategy
         rule_result = {}
-
+        print("rule_result before processing:", rule_result)
         strategy = self.strategy.get_strategy(
             state_name=state_name,
             rule_result=rule_result,
@@ -119,7 +119,7 @@ class ConversationOrchestrator:
                 memory=self.memory,
             )
 
-            print("Rule Result :", rule_result)
+            print("Rule Result after processing :", rule_result)
 
             if rule_result.get("move_next"):
 
