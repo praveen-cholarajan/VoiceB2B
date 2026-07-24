@@ -36,6 +36,9 @@ class ConversationOrchestrator:
             greeting = "Hello!"
 
         self.memory.add_ai_message(greeting)
+         # Move to first workflow state
+        self.memory.update_state("ASK_CUSTOMER_NAME")
+        
         return greeting
     
     def process(self, customer_message: str):
